@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Platform } from 'ionic-angular';
-import { Couchbase, Database } from "cordova-couchbase/core";
+import { Couchbase, Database } from "cordova-couchbase-async-sync/core";
 import 'rxjs/add/operator/map';
 
 declare var emit: any;
@@ -38,7 +38,7 @@ export class CouchbaseProvider {
           this.database.listen(change => {
             this.listener.emit(change.detail);
           });
-          
+
           this.isInstantiated = true;
         }, error => {
           console.error(error);
