@@ -26,6 +26,15 @@ export class HomePage {
               });
             }
           });
+        } else if(data[i].hasOwnProperty("deleted") && data[i].id.indexOf("_design") === -1) {
+          this.zone.run(() => {
+            for (var j = this.items.length - 1; j >= 0; --j) {
+              if (this.items[j]["_id"] === data[i]["id"]) {
+                this.items.splice(j, 1);
+                break;
+              }
+            }
+          });
         }
       }
     });
@@ -68,6 +77,10 @@ export class HomePage {
       ]
     });
     prompt.present();
+  }
+
+  public delete(documentId, revision) {
+    this.couchbase.getDatabase().deleteDocument(documentId, revision);
   }
 
 }

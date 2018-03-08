@@ -17,7 +17,8 @@
       Items
     </ion-list-header>
     <ion-item *ngFor="let item of items">
-      {{ item.title }}
+      {{ item.title }} {{item._id}}
+      <button ion-button clear item-end (click)="delete(item._id, item._rev)">delete</button>
     </ion-item>
   </ion-list>
 </ion-content>
