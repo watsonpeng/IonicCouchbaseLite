@@ -19,6 +19,12 @@
     <ion-item *ngFor="let item of items">
       {{ item.title }} {{item._id}}
       <button ion-button clear item-end (click)="delete(item._id, item._rev)">delete</button>
+      <button ion-button clear item-end (click)="deleteSync(item._id, item._rev)">deleteSync</button>
     </ion-item>
   </ion-list>
+  <ion-buttons>
+    <button ion-button full (click)="showAll()">
+      Show all items (synchronous call)
+    </button>
+  </ion-buttons>
 </ion-content>

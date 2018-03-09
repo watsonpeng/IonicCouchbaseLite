@@ -1,5 +1,5 @@
 import { Component, NgZone } from '@angular/core';
-import { NavController, AlertController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
 import { CouchbaseProvider } from "../../providers/couchbase/couchbase";
 
 @Component({
@@ -10,7 +10,9 @@ export class HomePage {
 
   public items: Array<any>;
 
-  public constructor(public navCtrl: NavController, public alertCtrl: AlertController, public couchbase: CouchbaseProvider, public zone: NgZone) {
+  public constructor(public alertCtrl: AlertController,
+                     public couchbase: CouchbaseProvider,
+                     public zone: NgZone) {
     this.items = [];
   }
 
@@ -81,6 +83,21 @@ export class HomePage {
 
   public delete(documentId, revision) {
     this.couchbase.getDatabase().deleteDocument(documentId, revision);
+  }
+
+  public deleteSync(documentId, revision) {
+    this.couchbase.getDatabase().deleteDocumentSync(documentId, revision);
+  }
+
+  public showAll() {
+    let res = this.couchbase.getDatabase().getAllDocumentsSync({include_docs: true});
+    let allDocs = res.rows.filter(x => x.id.indexOf("_design") === -1);
+    let prompt = this.alertCtrl.create({
+      title: 'All Items',
+      message: "All items from sychronous call",
+      buttons: allDocs.map(x => { return { 'text': x.doc.title, 'handler': data => {} }; })
+    });
+    prompt.present();
   }
 
 }
