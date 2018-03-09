@@ -27,4 +27,13 @@
       Show all items (synchronous call)
     </button>
   </ion-buttons>
+  <ion-list>
+    <ion-list-header>
+      Items Edit
+    </ion-list-header>
+    <ion-item *ngFor="let item of items">
+      {{ item.title }} {{item._id}}
+      <button ion-button clear item-end (click)="edit(item._id, item._rev)">edit</button>
+    </ion-item>
+  </ion-list>
 </ion-content>

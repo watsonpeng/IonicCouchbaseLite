@@ -24,7 +24,17 @@ export class HomePage {
           this.couchbase.getDatabase().getDocument(data[i].id).then(result => {
             if(result.type === "list") {
               this.zone.run(() => {
-                this.items.push(result);
+                // try update first
+                var updated = false;
+                for (var j = this.items.length - 1; j >= 0; --j) {
+                  if (this.items[j]["_id"] === data[i]["id"]) {
+                    this.items[j] = result;
+                    updated = true;
+                  }
+                }
+                if (!updated) {
+                  this.items.push(result);
+                }
               });
             }
           });
@@ -82,7 +92,17 @@ export class HomePage {
   }
 
   public delete(documentId, revision) {
-    this.couchbase.getDatabase().deleteDocument(documentId, revision);
+    this.couchbase.getDatabase().deleteDocument(documentId, revision).then(res => {
+      // id, rev in response
+      // this.couchbase.getDatabase().purgeDocument().then( // purge all deleted documents
+      this.couchbase.getDatabase().purgeDocument(res.id).then(
+        r1 => { console.log("document purged: ");
+        },
+        err => {
+          console.log("document purged failed: ");
+        }
+      )
+    });
   }
 
   public deleteSync(documentId, revision) {
@@ -96,6 +116,32 @@ export class HomePage {
       title: 'All Items',
       message: "All items from sychronous call",
       buttons: allDocs.map(x => { return { 'text': x.doc.title, 'handler': data => {} }; })
+    });
+    prompt.present();
+  }
+
+  public edit(documentId, revision) {
+    let prompt = this.alertCtrl.create({
+      title: 'Todo Items',
+      message: "Edit an existing item on the todo list",
+      inputs: [
+        {
+          name: 'title',
+          placeholder: 'Title'
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: data => {}
+        },
+        {
+          text: 'Save',
+          handler: data => {
+            this.couchbase.getDatabase().updateDocument(documentId, revision, {type: "list", title: data.title});
+          }
+        }
+      ]
     });
     prompt.present();
   }
