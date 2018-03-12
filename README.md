@@ -14,6 +14,7 @@ Beyond demonstrating the basic interaction between Ionic Framework and Couchbase
 ```
 git clone git@bitbucket.org:sbajpai-healthwizz/couchbase.git
 cd couchbase
+npm install
 tsc -p .
 ```
 Note that once the required module above is in a npm repository, we will not need the steps above. In addition, we will need to modify the package.json file to point to the cordova-couchbase-async-sync module in the npm repository, instead of a symlink to a local folder.
