@@ -23,7 +23,7 @@ export class CouchbaseProvider {
 
   public constructor(public http: HttpClient, platform: Platform) {
     platform.ready().then(() => {
-    if(!this.isInstantiated) {
+      if(!this.isInstantiated) {
 
         this.couchbase = new Couchbase();
         this.couchbase.openDatabase("nraboy").then(database => {
@@ -48,16 +48,17 @@ export class CouchbaseProvider {
           console.error(error);
         });
 
-    }
+      }
 
-    if(!this.bulkDBCreated) {
-      this.couchbase.openDatabase("bulkdb").then(database => {
-        this.bulkDB = database;
-        this.bulkDBCreated = true;
-      }, error => {
-        console.error(error);
-      });
-    }
+      if(!this.bulkDBCreated) {
+        this.couchbase.getUrl().then(url => {
+          let db = new Database(url, "bulkdb");
+          // Create the bulkdb database using synchronous calls
+          db.createDatabaseSync();
+          this.bulkDB = db;
+          this.bulkDBCreated = true;
+        });
+      }
     });
   }
 

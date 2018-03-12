@@ -243,8 +243,10 @@ export class HomePage {
                 throw "Cannot find an data array in the API response";
               }
 
-              this.couchbase.getBulkDB().createDocumentsSync(data as Array<any>);
-              var result = this.couchbase.getBulkDB().getAllDocumentsSync()
+              let db = this.couchbase.getBulkDB();
+
+              db.createDocumentsSync(data as Array<any>);
+              var result = db.getAllDocumentsSync();
               this.bulkItemCount = result.total_rows;
               let allDocs = result.rows.slice(this.bulkItemCount - 5, this.bulkItemCount).filter(x => x.id.indexOf("_design") === -1);
               this.bulkItems = allDocs.map(x => { return { 'id': x.id }; });
