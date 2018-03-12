@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, NgZone } from '@angular/core';
 import { AlertController } from 'ionic-angular';
 import { CouchbaseProvider } from "../../providers/couchbase/couchbase";
@@ -9,11 +10,16 @@ import { CouchbaseProvider } from "../../providers/couchbase/couchbase";
 export class HomePage {
 
   public items: Array<any>;
+  public bulkItems: Array<any>;
+  public bulkItemCount: number;
 
   public constructor(public alertCtrl: AlertController,
                      public couchbase: CouchbaseProvider,
+                     public http: HttpClient,
                      public zone: NgZone) {
     this.items = [];
+    this.bulkItems = [];
+    this.bulkItemCount = 0;
   }
 
   public ionViewDidEnter() {
@@ -139,6 +145,110 @@ export class HomePage {
           text: 'Save',
           handler: data => {
             this.couchbase.getDatabase().updateDocument(documentId, revision, {type: "list", title: data.title});
+          }
+        }
+      ]
+    });
+    prompt.present();
+  }
+
+  public bulkLoad() {
+    let prompt = this.alertCtrl.create({
+      title: 'Bulk Load Data from a URL',
+      message: "The URL must return JSON array",
+      inputs: [
+        {
+          name: 'url',
+          // the URL must return a list of JSON objects, or contain such a list
+          placeholder: 'URL, e.g., https://api.github.com/users'
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: data => {}
+        },
+        {
+          text: 'Load',
+          handler: data => {
+            this.http.get(data.url).subscribe(res => {
+              var data = null;
+              if(Array.isArray(res)) {
+                data = res;
+              } else if (typeof res === "object") {
+                for(var v in res) {
+                  if(Array.isArray(res[v])) {
+                    data = res[v];
+                    break;
+                  }
+                }
+              }
+
+              if(!data) {
+                throw "Cannot find an data array in the API response";
+              }
+
+              this.couchbase.getBulkDB().createDocuments(data as Array<any>).then(res => {
+                this.couchbase.getBulkDB().getAllDocuments().then(
+                  res => {
+                    this.bulkItemCount = res.total_rows;
+                    let allDocs = res.rows.slice(this.bulkItemCount - 5, this.bulkItemCount).filter(x => x.id.indexOf("_design") === -1);
+                    this.bulkItems = allDocs.map(x => { return { 'id': x.id }; });
+                  }
+                );
+              }, err => {
+                console.log("Data uploading failure:" + err);
+              });
+            });
+          }
+        }
+      ]
+    });
+    prompt.present();
+  }
+
+  public bulkLoadSync() {
+    let prompt = this.alertCtrl.create({
+      title: 'Synchronously Load Data from a URL',
+      message: "The URL must return JSON array or contains such a array in the return",
+      inputs: [
+        {
+          name: 'url',
+          // the URL must return a list of JSON objects, or contain such a list
+          placeholder: 'URL, e.g., https://api.github.com/users'
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: data => {}
+        },
+        {
+          text: 'Load',
+          handler: data => {
+            this.http.get(data.url).subscribe(res => {
+              var data = null;
+              if(Array.isArray(res)) {
+                data = res;
+              } else if (typeof res === "object") {
+                for(var v in res) {
+                  if(Array.isArray(res[v])) {
+                    data = res[v];
+                    break;
+                  }
+                }
+              }
+
+              if(!data) {
+                throw "Cannot find an data array in the API response";
+              }
+
+              this.couchbase.getBulkDB().createDocumentsSync(data as Array<any>);
+              var result = this.couchbase.getBulkDB().getAllDocumentsSync()
+              this.bulkItemCount = result.total_rows;
+              let allDocs = result.rows.slice(this.bulkItemCount - 5, this.bulkItemCount).filter(x => x.id.indexOf("_design") === -1);
+              this.bulkItems = allDocs.map(x => { return { 'id': x.id }; });
+            });
           }
         }
       ]

@@ -16,13 +16,17 @@ declare var emit: any;
 export class CouchbaseProvider {
   private isInstantiated: boolean;
   private database: Database;
+  private bulkDB: Database;
+  private bulkDBCreated: boolean;
   private listener: EventEmitter<any> = new EventEmitter();
+  private couchbase: Couchbase;
 
   public constructor(public http: HttpClient, platform: Platform) {
+    platform.ready().then(() => {
     if(!this.isInstantiated) {
-      platform.ready().then(() => {
 
-        (new Couchbase()).openDatabase("nraboy").then(database => {
+        this.couchbase = new Couchbase();
+        this.couchbase.openDatabase("nraboy").then(database => {
           this.database = database;
 
           let views = {
@@ -44,8 +48,21 @@ export class CouchbaseProvider {
           console.error(error);
         });
 
+    }
+
+    if(!this.bulkDBCreated) {
+      this.couchbase.openDatabase("bulkdb").then(database => {
+        this.bulkDB = database;
+        this.bulkDBCreated = true;
+      }, error => {
+        console.error(error);
       });
     }
+    });
+  }
+
+  public getBulkDB() {
+    return this.bulkDB;
   }
 
   public getDatabase() {

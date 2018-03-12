@@ -14,7 +14,7 @@
 <ion-content padding>
   <ion-list>
     <ion-list-header>
-      Items
+      TODO Items
     </ion-list-header>
     <ion-item *ngFor="let item of items">
       {{ item.title }} {{item._id}}
@@ -24,16 +24,35 @@
   </ion-list>
   <ion-buttons>
     <button ion-button full (click)="showAll()">
-      Show all items (synchronous call)
+      Show all TODO items (synchronous call)
     </button>
   </ion-buttons>
   <ion-list>
     <ion-list-header>
-      Items Edit
+      TODO Items Edit
     </ion-list-header>
     <ion-item *ngFor="let item of items">
       {{ item.title }} {{item._id}}
       <button ion-button clear item-end (click)="edit(item._id, item._rev)">edit</button>
     </ion-item>
   </ion-list>
+  <ion-buttons>
+    <button ion-button round color="secondary" (click)="bulkLoad()">
+      Asynchronous Bulk Load from a URL to bulkdb
+    </button>
+  </ion-buttons>
+
+  <ion-list>
+    <ion-list-header>
+      Bulk Items: count {{ bulkItemCount }}, 5 IDs shown below
+    </ion-list-header>
+    <ion-item *ngFor="let item of bulkItems">
+      {{item.id}}
+    </ion-item>
+  </ion-list>
+  <ion-buttons>
+    <button ion-button round color="secondary" (click)="bulkLoadSync()">
+      Synchronous Bulk Load from a URL to bulkdb
+    </button>
+  </ion-buttons>
 </ion-content>
