@@ -24,16 +24,16 @@ export class CouchbaseProvider {
   public constructor(public http: HttpClient, platform: Platform) {
     platform.ready().then(() => {
       if(!this.isInstantiated) {
-
         this.couchbase = new Couchbase();
         this.couchbase.openDatabase("nraboy").then(database => {
+
           this.database = database;
 
           let views = {
             items: {
               map: function(doc) {
                 if(doc.type == "list" && doc.title) {
-                  emit(doc._id, {title: doc.title, rev: doc._rev})
+                  emit(doc._id, {title: doc.title, _id: doc._id, _rev: doc._rev})
                 }
               }.toString()
             }

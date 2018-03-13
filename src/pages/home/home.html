@@ -37,8 +37,11 @@
     </ion-item>
   </ion-list>
   <ion-buttons>
-    <button ion-button round color="secondary" (click)="bulkLoad()">
-      Asynchronous Bulk Load from a URL to bulkdb
+    <button ion-button color="secondary" (click)="bulkLoad()">
+      Async Bulk Load
+    </button>
+    <button ion-button color="secondary" (click)="bulkLoadSync()">
+      Sync Bulk Load
     </button>
   </ion-buttons>
 
@@ -50,9 +53,4 @@
       {{item.id}}
     </ion-item>
   </ion-list>
-  <ion-buttons>
-    <button ion-button round color="secondary" (click)="bulkLoadSync()">
-      Synchronous Bulk Load from a URL to bulkdb
-    </button>
-  </ion-buttons>
 </ion-content>

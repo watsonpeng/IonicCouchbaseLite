@@ -56,7 +56,10 @@ export class HomePage {
         }
       }
     });
+
     this.refresh();
+    // TODO: somehow this only put 5 items on the page, but not update the existing bulk item count upon loading
+    this.updateBulkItems();
     }, 100);
   }
 
@@ -244,18 +247,22 @@ export class HomePage {
               }
 
               let db = this.couchbase.getBulkDB();
-
               db.createDocumentsSync(data as Array<any>);
-              var result = db.getAllDocumentsSync();
-              this.bulkItemCount = result.total_rows;
-              let allDocs = result.rows.slice(this.bulkItemCount - 5, this.bulkItemCount).filter(x => x.id.indexOf("_design") === -1);
-              this.bulkItems = allDocs.map(x => { return { 'id': x.id }; });
+              this.updateBulkItems();
             });
           }
         }
       ]
     });
     prompt.present();
+  }
+
+  private updateBulkItems() {
+    let db = this.couchbase.getBulkDB();
+    var result = db.getAllDocumentsSync();
+    this.bulkItemCount = result.total_rows;
+    let allDocs = result.rows.slice(this.bulkItemCount - 5, this.bulkItemCount).filter(x => x.id.indexOf("_design") === -1);
+    this.bulkItems = allDocs.map(x => { return { 'id': x.id }; });
   }
 
 }
